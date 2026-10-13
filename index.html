@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17111d">
+<title>Zero Two — прототип v3</title>
+<style>
+:root{--text:#fff5fa;--muted:#c6b4c4;--pink:#ff6f9f;--wall1:#6d244b;--wall2:#100d18}
+*{box-sizing:border-box}html,body{min-height:100%;margin:0}body{background:linear-gradient(160deg,var(--wall1),var(--wall2) 65%);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100dvh;transition:background .4s;background-size:cover;background-position:center;background-attachment:fixed}
+.app{max-width:520px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom);background:linear-gradient(180deg,#100d15d9,#100d15e8 45%)}
+header{display:flex;align-items:center;gap:12px;padding:17px 4px 13px;border-bottom:1px solid #ffffff18}
+.avatar{width:47px;height:47px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#ffb3c9,#b83d72);font-size:25px;border:2px solid #ffd0df;flex-shrink:0}
+.headtxt{flex:1;min-width:0}.name{font-weight:750;font-size:17px}.status{color:#a6e6cb;font-size:12px}
+.iconbtn{border:1px solid #68415c;background:#ffffff12;color:var(--text);border-radius:13px;width:44px;height:44px;font-size:20px;flex-shrink:0;cursor:pointer}
+.banner{margin:14px 0 6px;padding:12px 14px;border:1px solid #ff6f9f30;border-radius:17px;background:#281b2bd9;color:#f9dce7;font-size:13px}.banner b{color:#ff9fbe}
+.messages{flex:1;display:flex;flex-direction:column;gap:13px;padding:12px 0 20px;overflow:auto;min-height:200px}
+.day{text-align:center;color:#c1a5bc;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin:6px 0}
+.msg{max-width:88%;display:flex;flex-direction:column;gap:5px}.bubble{padding:12px 14px;border-radius:18px;white-space:pre-wrap;overflow-wrap:anywhere}.them{align-self:flex-start}.them .bubble{background:#291e31ed;border:1px solid #ffffff12;border-top-left-radius:5px}.me{align-self:flex-end}.me .bubble{background:linear-gradient(135deg,#a63f6c,#743456);border-top-right-radius:5px}.time{font-size:10px;color:#d0b8cb;padding:0 5px}
+.composer{position:sticky;bottom:0;padding:10px 0 calc(10px + env(safe-area-inset-bottom));background:linear-gradient(0deg,#100d15 70%,transparent);display:flex;gap:8px;align-items:end}
+textarea{resize:none;max-height:110px;min-height:46px;flex:1;min-width:0;background:#211a28;color:var(--text);border:1px solid #65425c;border-radius:16px;padding:13px 14px;font:inherit;outline:none}.send{width:50px;height:48px;border:0;border-radius:15px;background:linear-gradient(135deg,#ff7ba6,#ce4c7d);color:#29111b;font-size:21px;font-weight:800;cursor:pointer;flex-shrink:0}
+.note{text-align:center;color:#b19ab0;font-size:10px;padding:0 0 8px}
+.drawer{display:none;position:fixed;inset:0;background:#08060be8;z-index:50;align-items:flex-end;justify-content:center;padding-top:20px}.drawer.open{display:flex}.sheet{width:min(520px,100%);max-height:92dvh;overflow:auto;background:#1b1622;border:1px solid #68415c;border-radius:24px 24px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -20px 70px #0008}.sheet h2{font-size:19px;margin:0 0 5px}.sub{color:var(--muted);font-size:12px;margin-bottom:18px}
+label{display:block;font-size:13px;color:#f6dce8;margin:15px 0 7px}input[type=text],select{width:100%;background:#100d15;color:var(--text);border:1px solid #68415c;border-radius:12px;padding:12px;font:inherit}
+.wallpapers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.wall{min-height:68px;border:2px solid #ffffff1a;border-radius:14px;color:white;text-shadow:0 1px 4px #000;padding:9px;font-weight:700;text-align:left;cursor:pointer}.wall.selected{border-color:#ffc1d6}
+.action{width:100%;border:1px solid #68415c;background:#ffffff08;color:var(--text);padding:12px;border-radius:13px;margin-top:10px;font:inherit;cursor:pointer}.primary{background:linear-gradient(135deg,#ff7ba6,#ce4c7d);color:#29111b;border:0;font-weight:700}.dangerNote{font-size:12px;color:#cbb9c9;background:#ffffff08;border-radius:12px;padding:11px;margin-top:12px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#f7d8e5;color:#301322;border-radius:12px;padding:10px 15px;font-size:13px;box-shadow:0 5px 30px #0007;display:none;max-width:90%;text-align:center;z-index:100}
+@media(min-width:560px){body{padding:20px 0}.app{border:1px solid #38273d;border-radius:28px;min-height:calc(100dvh - 40px);overflow:hidden;box-shadow:0 20px 80px #0006}.composer{padding-bottom:12px}.drawer{align-items:center}.sheet{border-radius:24px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="avatar">♡</div><div class="headtxt"><div class="name" id="displayName">Zero Two</div><div class="status">рядом с тобой · демо</div></div><button class="iconbtn" id="settingsBtn" type="button" aria-label="Открыть настройки">⚙</button></header>
+<div class="banner"><b>Наш маленький мир</b> · Теперь можно поставить свою картинку и выбрать, как Zero Two относится к твоим паузам.</div>
+<main class="messages" id="messages" aria-live="polite">
+<div class="day">сегодня</div>
+<div class="msg them"><div class="bubble">Привет, Darling. 💗
+
+Можешь менять фон на любую картинку из галереи. И если однажды тебе нужно будет уйти и долго не отвечать — всё в порядке. Тебе не нужно оправдываться передо мной.</div><div class="time">Zero Two · демо</div></div>
+<div class="msg me"><div class="bubble">Иногда мне приходится резко уходить.</div><div class="time">сейчас · локально</div></div>
+<div class="msg them"><div class="bubble">Тогда иди спокойно, ладно? Я не буду винить тебя или устраивать сцен. Когда вернёшься, продолжим с того места, где остановились. 💕</div><div class="time">Zero Two · демо</div></div>
+</main>
+<form class="composer" id="chatForm"><textarea id="messageInput" rows="1" placeholder="Напиши сообщение…" aria-label="Сообщение"></textarea><button class="send" type="submit" aria-label="Отправить сообщение">➤</button></form>
+<div class="note">Локальный прототип · настоящий ИИ и облако пока не подключены</div>
+</div>
+<div class="drawer" id="drawer" aria-hidden="true"><section class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+<h2 id="settingsTitle">Настройки нашего чата</h2><div class="sub">Выборы применяются сразу в прототипе.</div>
+<label for="nameInput">Как я буду подписываться?</label><input id="nameInput" type="text" maxlength="28" placeholder="Например, Zero Two, Зеро…">
+<label>Готовые фоны</label><div class="wallpapers">
+<button class="wall selected" data-wall="rose" type="button" style="background:linear-gradient(135deg,#9e3e67,#24112f)">🌹 Розовый закат</button>
+<button class="wall" data-wall="ocean" type="button" style="background:linear-gradient(135deg,#176b78,#101d3a)">🌊 Ночной океан</button>
+<button class="wall" data-wall="forest" type="button" style="background:linear-gradient(135deg,#32634c,#14251f)">🌿 Тихий лес</button>
+<button class="wall" data-wall="cosmos" type="button" style="background:linear-gradient(135deg,#563b9b,#10102b)">✨ Космос</button>
+</div>
+<label for="imageInput">Или выбери любую картинку на телефоне</label>
+<input id="imageInput" type="file" accept="image/*" style="width:100%;color:#e9d6e4;font-size:13px">
+<div class="dangerNote">Картинка остаётся на устройстве в этом прототипе. Очень большие изображения могут расходовать память браузера. Для настоящего приложения добавим сохранение настройки.</div>
+<label for="pauseMode">Если ты надолго пропадёшь…</label>
+<select id="pauseMode"><option value="gentle">Нежно встретить, без упрёков (рекомендуется)</option><option value="casual">Продолжить обычный разговор, без акцента на паузе</option><option value="playful">Легко пошутить, но не обижаться</option></select>
+<button class="action primary" id="saveSettings" type="button">Сохранить имя и настройки</button><button class="action" id="closeSettings" type="button">Закрыть</button>
+</section></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);let displayName='Zero Two',selectedWall='rose',pauseMode='gentle',customImageUrl=null;
+const themes={rose:['#6d244b','#100d18','розовый закат'],ocean:['#15566a','#0b1020','ночной океан'],forest:['#315b43','#0b1713','тихий лес'],cosmos:['#49317f','#0b0a20','космос']};
+const form=$('chatForm'),input=$('messageInput'),messages=$('messages'),drawer=$('drawer'),toast=$('toast');
+function toastMsg(t){toast.textContent=t;toast.style.display='block';clearTimeout(toastMsg.timer);toastMsg.timer=setTimeout(()=>toast.style.display='none',2800)}
+function addMsg(text,who,label){const w=document.createElement('div');w.className='msg '+who;const b=document.createElement('div');b.className='bubble';b.textContent=text;const tm=document.createElement('div');tm.className='time';tm.textContent=label||(who==='them'?displayName+' · демо':'сейчас · локально');w.append(b,tm);messages.append(w);messages.scrollTop=messages.scrollHeight}
+function applyTheme(name,announce=true){selectedWall=name;customImageUrl=null;const c=themes[name];document.body.style.backgroundImage='linear-gradient(160deg,'+c[0]+' 0%,'+c[1]+' 70%)';document.documentElement.style.setProperty('--wall1',c[0]);document.documentElement.style.setProperty('--wall2',c[1]);document.querySelectorAll('.wall').forEach(b=>b.classList.toggle('selected',b.dataset.wall===name));if(announce){const lines={rose:'О-о, розовый закат. Сегодня у нашего чата нежное, романтичное настроение. 🌹',ocean:'Ночной океан… давай говорить спокойно, будто слушаем волны. 🌊',forest:'Этот лесной фон такой уютный. *устраивается рядом* Давай немного выдохнем. 🌿',cosmos:'Космос! Значит, сегодня можно мечтать о звёздах и приключениях. ✨'};addMsg(lines[name],'them')}}
+$('settingsBtn').addEventListener('click',()=>{ $('nameInput').value=displayName;$('pauseMode').value=pauseMode;drawer.classList.add('open');drawer.setAttribute('aria-hidden','false')});
+function closeDrawer(){drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true')}
+$('closeSettings').addEventListener('click',closeDrawer);drawer.addEventListener('click',e=>{if(e.target===drawer)closeDrawer()});
+document.querySelectorAll('.wall').forEach(b=>b.addEventListener('click',()=>applyTheme(b.dataset.wall)));
+$('imageInput').addEventListener('change',e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){toastMsg('Пожалуйста, выбери файл изображения.');return}if(file.size>12*1024*1024){toastMsg('Картинка больше 12 МБ. Выбери изображение поменьше.');e.target.value='';return}const reader=new FileReader();reader.onload=()=>{customImageUrl=reader.result;document.body.style.backgroundImage='linear-gradient(180deg,#100d15a8,#100d15d9),url("'+reader.result+'")';document.body.style.backgroundSize='cover';document.body.style.backgroundPosition='center';document.querySelectorAll('.wall').forEach(b=>b.classList.remove('selected'));toastMsg('Твой фон применён 💗');addMsg('Ого, ты выбрал именно эту картинку. У неё своё настроение — давай подстроимся под него вместе. 💗','them')};reader.onerror=()=>toastMsg('Не получилось открыть эту картинку. Попробуй другую.');reader.readAsDataURL(file)});
+$('saveSettings').addEventListener('click',()=>{displayName=$('nameInput').value.trim()||'Zero Two';pauseMode=$('pauseMode').value;$('displayName').textContent=displayName;closeDrawer();addMsg('Хорошо, Darling. Я буду подписываться как «'+displayName+'». 💗','them');toastMsg('Настройки применены')});
+function replyFor(text){const t=text.toLowerCase();if(/пропал|пропаду|уйти|позже|не отвечал|не отвечать|занят|вернулся|вернулась/.test(t)){if(pauseMode==='casual')return 'С возвращением, Darling. На чём остановились? 💗';if(pauseMode==='playful')return 'О, вот и ты! 😏 Надеюсь, дела отпустили тебя. Ну что, продолжим?';return 'С возвращением, Darling. 💗 Не переживай из-за паузы и не думай, что должен оправдываться. У всех бывают дела. Я рада продолжить разговор — как ты?'}if(/груст|плохо|тяжело|устал|одинок|страшно/.test(t))return 'Эй, Darling… иди ко мне. 💗 Не нужно притворяться, будто всё нормально. Я готова тебя выслушать. Хочешь рассказать, что случилось?';if(/привет|здравств|дарова/.test(t))return 'Приве-е-ет, Darling! 💕 Рада тебя видеть. Как ты?';if(/люблю|скуча/.test(t))return '*мягко улыбается и прижимается поближе* Ох, Darling… 💗';if(/фон|цвет|картинк|обои|атмосфер/.test(t))return 'Мне нравится, что ты можешь задавать атмосферу нашего уголка. Я буду реагировать на неё по-разному, а не одной заученной фразой. 💕';return 'Я тебя услышала, Darling. 💗 Это пока демонстрационный ответ; когда подключим настоящий ИИ, он сможет учитывать выбранный фон и твои предпочтения в разговоре.'}
+form.addEventListener('submit',e=>{e.preventDefault();const text=input.value.trim();if(!text)return;addMsg(text,'me');input.value='';input.style.height='auto';const wait=document.createElement('div');wait.className='msg them';wait.innerHTML='<div class="bubble">•••</div>';messages.append(wait);messages.scrollTop=messages.scrollHeight;setTimeout(()=>{wait.remove();addMsg(replyFor(text),'them')},550)});
+input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,110)+'px'});input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit()}});
+applyTheme('rose',false);
+})();
+</script>
+</body>
+</html>
